@@ -7,3 +7,4 @@ midlaj
 midlaj
 midlaj 
 midlaj ek
+git add .
