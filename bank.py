@@ -1,7 +1,10 @@
 import datetime
+from colorama import Fore, Style, init
+
+# Initialize colorama (autoreset means color goes back to normal after each print)
+init(autoreset=True)
 
 
-# --- CLASS 1: THE ROBOT (Account) ---
 class Account:
     def __init__(self, owner_name):
         self.owner = owner_name
@@ -12,25 +15,30 @@ class Account:
         self.balance += amount
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         self.history.append(f"[{date}] Deposited: ${amount}")
-        print(f"✅ New Balance: ${self.balance}")
+
+        # GREEN text for positive things
+        print(f"{Fore.GREEN}✅ Deposited ${amount}. New Balance: ${self.balance}")
 
     def withdraw(self, amount):
         if self.balance >= amount:
             self.balance -= amount
             date = datetime.datetime.now().strftime("%Y-%m-%d")
             self.history.append(f"[{date}] Withdrew: ${amount}")
-            print(f"✅ Withdraw Successful. New Balance: ${self.balance}")
+
+            # CYAN (Blue-ish) text for withdrawals
+            print(f"{Fore.CYAN}📉 Withdrew ${amount}. New Balance: ${self.balance}")
         else:
-            print("⚠️ Insufficient Funds!")
+            # RED text for errors
+            print(f"{Fore.RED}⚠️ Insufficient Funds! Transaction blocked.")
 
     def print_statement(self):
-        print(f"\n--- 📜 Statement for {self.owner} ---")
+        print(f"\n{Fore.YELLOW}--- 📜 Statement for {self.owner} ---")
         for item in self.history:
             print(item)
-        print(f"💰 Final Balance: ${self.balance}\n")
+        print(f"{Fore.YELLOW}💰 Final Balance: ${self.balance}\n")
 
 
-# --- CLASS 2: THE MANAGER (BankSystem) ---
+# --- (The rest of your BankSystem class stays exactly the same) ---
 class BankSystem:
     def __init__(self):
         self.accounts = []
@@ -45,7 +53,7 @@ class BankSystem:
         name = input("Enter your name: ")
         new_account = Account(name)
         self.accounts.append(new_account)
-        print(f"✅ Account created for {name}")
+        print(f"{Fore.GREEN}✅ Account created for {name}")
 
     def deposit_money(self):
         name = input("Enter your name: ")
@@ -54,7 +62,7 @@ class BankSystem:
             amt = int(input("Enter amount: "))
             selected_account.deposit(amt)
         else:
-            print("❌ Account doesn't exist")
+            print(f"{Fore.RED}❌ Account doesn't exist")
 
     def withdraw_money(self):
         name = input("Enter your name: ")
@@ -64,7 +72,7 @@ class BankSystem:
             amt = int(input("Enter amount to withdraw: "))
             selected_account.withdraw(amt)
         else:
-            print("❌ Account doesn't exist")
+            print(f"{Fore.RED}❌ Account doesn't exist")
 
     def view_history(self):
         name = input("Enter your name: ")
@@ -73,16 +81,17 @@ class BankSystem:
         if selected_account is not None:
             selected_account.print_statement()
         else:
-            print("❌ Account doesn't exist")
+            print(f"{Fore.RED}❌ Account doesn't exist")
 
     def main_menu(self):
         name = input("Enter your name to login: ")
+        # We assume the file handling is fine, just added a color print
         with open("database.txt", "a") as file:
             file.write(name + "\n")
-            print("✅ Login saved to hard drive")
+            print(f"{Fore.GREEN}✅ Login saved to hard drive")
 
         while True:
-            print("\n--- 🏦 BANK MENU ---")
+            print(f"\n{Fore.MAGENTA}--- 🏦 BANK MENU ---")
             print("1. Create Account")
             print("2. Deposit Money")
             print("3. Withdraw Money")
@@ -100,7 +109,7 @@ class BankSystem:
             elif choice == "4":
                 self.view_history()
             elif choice == "5":
-                print("Goodbye!")
+                print(f"{Fore.MAGENTA}Goodbye!")
                 break
 
 
