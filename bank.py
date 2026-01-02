@@ -1,10 +1,43 @@
 import datetime
-from colorama import Fore, Style, init
+import google.generativeai as genai
+from colorama import Fore, init
 
-# Initialize colorama (autoreset means color goes back to normal after each print)
+# 1. Initialize Colorama (Colors)
 init(autoreset=True)
 
+# 2. Configure the AI Brain (Gemini)
+# ⚠️ SECURITY NOTE: In a real job, never hide keys in code. Use Environment Variables.
+genai.configure(api_key="AIzaSyAnvuxuaMDF6NAVLdiA3JxK9HWaZljXk5g")
+model = genai.GenerativeModel('gemini-2.5-flash')
 
+
+def ask_ai_advisor():
+    print(f"\n{Fore.CYAN}🤖 AI FINANCIAL ADVISOR ONLINE...")
+    print(f"{Fore.CYAN}Example: 'How can I save for a car?' or 'Explain inflation.'")
+
+    while True:
+        question = input(f"\n{Fore.WHITE}Ask a question (or type 'exit'): ")
+
+        if question.lower() == "exit":
+            print("🤖 disconnecting AI...")
+            break
+
+        print(f"{Fore.YELLOW}Thinking...")
+
+        try:
+            # We add a hidden instruction so it acts like a Banker
+            prompt = f"Act as a professional financial advisor. Keep answers short and helpful. User asks: {question}"
+            response = model.generate_content(prompt)
+
+            print(f"\n{Fore.GREEN}💡 AI ADVICE:")
+            print(f"{Fore.WHITE}{response.text}")
+            print("-" * 50)
+
+        except Exception as e:
+            print(f"{Fore.RED}❌ Connection Error: {e}")
+
+
+# --- CLASS 1: THE ROBOT (Account) ---
 class Account:
     def __init__(self, owner_name):
         self.owner = owner_name
@@ -15,8 +48,6 @@ class Account:
         self.balance += amount
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         self.history.append(f"[{date}] Deposited: ${amount}")
-
-        # GREEN text for positive things
         print(f"{Fore.GREEN}✅ Deposited ${amount}. New Balance: ${self.balance}")
 
     def withdraw(self, amount):
@@ -24,12 +55,9 @@ class Account:
             self.balance -= amount
             date = datetime.datetime.now().strftime("%Y-%m-%d")
             self.history.append(f"[{date}] Withdrew: ${amount}")
-
-            # CYAN (Blue-ish) text for withdrawals
             print(f"{Fore.CYAN}📉 Withdrew ${amount}. New Balance: ${self.balance}")
         else:
-            # RED text for errors
-            print(f"{Fore.RED}⚠️ Insufficient Funds! Transaction blocked.")
+            print(f"{Fore.RED}⚠️ Insufficient Funds!")
 
     def print_statement(self):
         print(f"\n{Fore.YELLOW}--- 📜 Statement for {self.owner} ---")
@@ -38,7 +66,7 @@ class Account:
         print(f"{Fore.YELLOW}💰 Final Balance: ${self.balance}\n")
 
 
-# --- (The rest of your BankSystem class stays exactly the same) ---
+# --- CLASS 2: THE MANAGER (BankSystem) ---
 class BankSystem:
     def __init__(self):
         self.accounts = []
@@ -67,7 +95,6 @@ class BankSystem:
     def withdraw_money(self):
         name = input("Enter your name: ")
         selected_account = self.find_account(name)
-
         if selected_account is not None:
             amt = int(input("Enter amount to withdraw: "))
             selected_account.withdraw(amt)
@@ -77,7 +104,6 @@ class BankSystem:
     def view_history(self):
         name = input("Enter your name: ")
         selected_account = self.find_account(name)
-
         if selected_account is not None:
             selected_account.print_statement()
         else:
@@ -85,18 +111,16 @@ class BankSystem:
 
     def main_menu(self):
         name = input("Enter your name to login: ")
-        # We assume the file handling is fine, just added a color print
-        with open("database.txt", "a") as file:
-            file.write(name + "\n")
-            print(f"{Fore.GREEN}✅ Login saved to hard drive")
+        print(f"{Fore.GREEN}✅ Welcome, {name}")
 
         while True:
-            print(f"\n{Fore.MAGENTA}--- 🏦 BANK MENU ---")
+            print(f"\n{Fore.MAGENTA}--- 🏦 SMART BANK MENU ---")
             print("1. Create Account")
             print("2. Deposit Money")
             print("3. Withdraw Money")
             print("4. View History")
-            print("5. Exit")
+            print(f"{Fore.CYAN}5. 🤖 Ask AI Advisor")  # <--- NEW OPTION
+            print("6. Exit")
 
             choice = input("Choose: ")
 
@@ -109,6 +133,8 @@ class BankSystem:
             elif choice == "4":
                 self.view_history()
             elif choice == "5":
+                ask_ai_advisor()  # <--- Triggers the AI
+            elif choice == "6":
                 print(f"{Fore.MAGENTA}Goodbye!")
                 break
 
